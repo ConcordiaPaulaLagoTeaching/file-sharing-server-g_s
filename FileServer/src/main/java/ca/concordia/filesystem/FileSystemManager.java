@@ -22,6 +22,7 @@ public class FileSystemManager {
     public FileSystemManager(String filename, int totalSize) throws FileNotFoundException {
         // Initialize the file system manager with a file
         if (instance == null) {
+            
             disk = new RandomAccessFile(filename, "rw");
             inodeTable = new FEntry[MAXFILES];
             for (int i = 0; i < MAXFILES; i++) {
