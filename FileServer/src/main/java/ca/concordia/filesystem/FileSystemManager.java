@@ -19,6 +19,7 @@ public class FileSystemManager {
     private static final int BLOCK_SIZE = 128; // Example block size
 
     private FEntry[] inodeTable; // Array of inodes
+    private FNode[] fnodeTable;
     private boolean[] freeBlockList; // Bitmap for free blocks
 
     public FileSystemManager(String fileName, int totalSize) throws IOException {
@@ -26,11 +27,15 @@ public class FileSystemManager {
         if (instance == null) {
             disk = new RandomAccessFile(fileName, "rw");
             byte[] emptyEntry = new byte[15];
+            inodeTable = new FEntry[MAXFILES];
+            fnodeTable = new FNode[MAXBLOCKS];
+            freeBlockList = new boolean[MAXBLOCKS];
 
             for (int i = 0; i < MAXFILES; i++){
                 long offset = (long) i * emptyEntry.length;
             disk.seek(offset);
-            disk.write(emptyEntry, 0, emptyEntry.length);           
+            disk.write(emptyEntry, 0, emptyEntry.length);
+            inodeTable[i] = new FEntry("", (short)0,(short) -1);
             }
 
             for (int i = 0; i < MAXBLOCKS; i++){
@@ -43,20 +48,27 @@ public class FileSystemManager {
                 disk.write(indexBuffer, 0, indexBuffer.length);
                 disk.seek(indexLinkedNode);
                 disk.write(linkedNodeBuffer, 0, linkedNodeBuffer.length);
+                fnodeTable[i] = new FNode((short) i);
+                if (i == 0){
+                    freeBlockList[i] = false;
+                } else {
+                    freeBlockList[i] = true;
+                }
             }
          
         } else {
             throw new IllegalStateException("FileSystemManager is already initialized.");
         }
 
+        instance = this;
+
     }
 
     public void createFile(String fileName) throws Exception {
-        for (int i = 0; i < MAXFILES; i++) {
-            if (inodeTable[i] == null) {
-                inodeTable[i] = new FEntry(fileName, (short) 0, (short) -1);
-                break;
-            }
+        
+        for (int i =0; i < MAXFILES; i++){
+            byte[] buffer = new byte[15];
+         //   buffer = disk.read()
         }
     }
 
