@@ -85,6 +85,8 @@ public class FileSystemManager {
     }
 
     public void createFile(String fileName) throws Exception {
+        rw.writeLock().lock();
+        try {
         boolean freeFileFound = false;
         short indexFile = 0;
         short firstNode = -1;
@@ -121,9 +123,14 @@ public class FileSystemManager {
         disk.write(ByteBuffer.allocate(2).putShort((short) 0).array(), 0, 2);
         disk.seek(indexFile * 15 + 13);
         disk.write(ByteBuffer.allocate(2).putShort(firstNode).array(), 0, 2);
+        } finally {
+            rw.writeLock().unlock();
+        }
     }
 
     public void deleteFile(String fileName) throws Exception {
+        rw.writeLock().lock();
+        try {
         
         boolean fileFound = false;
         short indexFile = 0;
@@ -171,9 +178,14 @@ public class FileSystemManager {
         } else {
             System.out.println("File not Found.");
         }
+        } finally {
+            rw.writeLock().unlock();
+        }
     }
 
 public void writeFile(String fileName, byte[] contents) throws Exception {
+    rw.writeLock().lock();
+    try {
 
     short entryIndex = -1;
     for (int i = 0; i < MAXFILES; i++) {
@@ -297,10 +309,15 @@ public void writeFile(String fileName, byte[] contents) throws Exception {
     disk.write(ByteBuffer.allocate(2).putShort(firstBlock).array());
 
     System.out.println("Write complete.");
+    } finally {
+        rw.writeLock().unlock();
+    }
 }
 
 
     public byte[] readFile(String fileName) throws Exception {
+        rw.readLock().lock();
+        try {
 
         short entryIndex = -1;
         for (int i = 0; i < MAXFILES; i++) {
@@ -347,9 +364,14 @@ public void writeFile(String fileName, byte[] contents) throws Exception {
         }
 
         return output;
+        } finally {
+            rw.readLock().unlock();
+        }
     }
 
     public String[] listFiles() {
+        rw.readLock().lock();
+        try {
         
         System.out.println("List of files:\n");
 
@@ -372,7 +394,9 @@ public void writeFile(String fileName, byte[] contents) throws Exception {
         }
 
         return filesList;
-       
-}
+        } finally {
+            rw.readLock().unlock();
+        }
+    }
 }
 
