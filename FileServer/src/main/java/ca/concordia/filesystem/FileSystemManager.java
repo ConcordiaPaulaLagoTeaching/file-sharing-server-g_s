@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FileSystemManager {
 
@@ -15,12 +17,25 @@ public class FileSystemManager {
     private static FileSystemManager instance;
     private final RandomAccessFile disk;
     private ReentrantLock globalLock = new ReentrantLock();
-
+    private final ReadWriteLock rw = new ReentrantReadWriteLock(true);
     private static final int BLOCK_SIZE = 128; // Example block size
 
     private FEntry[] inodeTable; // Array of inodes
     private FNode[] fnodeTable;
     private boolean[] freeBlockList; // Bitmap for free blocks
+
+    public static synchronized void init(String fileName, int totalSize) throws IOException {
+        if (instance == null) {
+           instance =  new FileSystemManager(fileName, totalSize);
+        }
+    }
+
+    public static FileSystemManager getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("FileSystemManager has not been initialized. Call init() first.");
+        }
+        return instance;
+    }
 
     public FileSystemManager(String fileName, int totalSize) throws IOException {
         // Initialize the file system manager with a file
@@ -65,14 +80,20 @@ public class FileSystemManager {
     }
 
     public void createFile(String fileName) throws Exception {
-        
+
+            
+
         for (int i =0; i < MAXFILES; i++){
             byte[] buffer = new byte[15];
          //   buffer = disk.read()
         }
-    }
+        
+        }
+        
+    
 
     public void deleteFile(String fileName) throws Exception {
+        
         boolean fileFound = false;
         int blocksAmount = 0;
 
@@ -93,17 +114,20 @@ public class FileSystemManager {
 
                 inodeTable[i] = null;
                 break;
-
-            }
+            
         }
 
+            }
+          
         if (!fileFound) {
             System.out.println("No file found");
         }
+      
 
     }
 
     public void writeFile(String fileName, byte[] contents) throws Exception {
+     
 
         int fileSize = contents.length;
         int blocksNeeded = 0;
@@ -126,6 +150,7 @@ public class FileSystemManager {
             if (blocksAvailableCount == blocksNeeded) {
                 break;
             }
+            
         }
 
         if (firstBlock != -1 && (blocksAvailableCount == blocksNeeded)) {
@@ -137,15 +162,20 @@ public class FileSystemManager {
         } else {
             System.out.println("Not enough space available available");
         }
+         
+          
 
     }
 
     public byte[] readFile(String fileName) throws Exception {
         // Todo
+        
         throw new UnsupportedOperationException("Method not implemented yet.");
+  
     }
 
     public String[] listFiles() {
+        
         System.out.println("List of files:\n");
 
         int filesCount = 0;
@@ -167,6 +197,7 @@ public class FileSystemManager {
         }
 
         return filesList;
-    }
-
+       
 }
+}
+
