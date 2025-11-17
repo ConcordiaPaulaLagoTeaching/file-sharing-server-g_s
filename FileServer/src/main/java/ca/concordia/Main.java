@@ -13,3 +13,5 @@ public class Main {
         server.start();
     }
 }
+// cd FileServer
+// mvn exec:java -Dexec.mainClass="ca.concordia.Main"
