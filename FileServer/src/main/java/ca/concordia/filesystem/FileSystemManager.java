@@ -20,6 +20,8 @@ public class FileSystemManager {
     private final ReadWriteLock rw = new ReentrantReadWriteLock(true);
     private static final int BLOCK_SIZE = 128; // Example block size
     private byte[] zeroBlock = new byte[BLOCK_SIZE];
+    private final Object opLock = new Object();
+
 
     private FEntry[] entriesTable; // Array of inodes
     private FNode[] blocksTable;
@@ -86,7 +88,7 @@ public class FileSystemManager {
 
     public void createFile(String fileName) throws Exception {
         System.out.println("FSM instance hash = " + System.identityHashCode(FileSystemManager.getInstance()));
-
+        synchronized(opLock){
         rw.writeLock().lock();
         try {
             boolean freeFileFound = false;
@@ -129,8 +131,10 @@ public class FileSystemManager {
             rw.writeLock().unlock();
         }
     }
+    }
 
     public void deleteFile(String fileName) throws Exception {
+        synchronized(opLock){
         rw.writeLock().lock();
         try {
 
@@ -180,10 +184,11 @@ public class FileSystemManager {
             rw.writeLock().unlock();
         }
     }
+    }
 
     public void writeFile(String fileName, byte[] contents) throws Exception {
         System.out.println("FSM instance hash = " + System.identityHashCode(FileSystemManager.getInstance()));
-
+        synchronized(opLock){
         rw.writeLock().lock();
         try {
             boolean fileFound = false;
@@ -284,10 +289,11 @@ public class FileSystemManager {
             rw.writeLock().unlock();
         }
     }
+    }
 
     public byte[] readFile(String fileName) throws Exception {
         System.out.println("FSM instance hash = " + System.identityHashCode(FileSystemManager.getInstance()));
-
+        synchronized(opLock){
         rw.readLock().lock();
         try {
             boolean fileFound = false;
@@ -334,8 +340,10 @@ public class FileSystemManager {
             rw.readLock().unlock();
         }
     }
+    }
 
     public String[] listFiles() {
+        synchronized(opLock){
         rw.readLock().lock();
         try {
 
@@ -363,6 +371,7 @@ public class FileSystemManager {
             rw.readLock().unlock();
         }
     }
+}
 }
 
 // nc localhost 12345
